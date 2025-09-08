@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import type { Product } from "@/mocks/products.mock";
 import { Filter, Grid, List } from "lucide-react";
 import { useState, type FC } from "react";
 import ProductCard from "./ProductCard";
 import FilterSidebar from "./FilterSidebar";
 import { useSearchParams } from "react-router";
+import type { Product } from "@/interfaces/product.interface";
 
 interface ProductsGridProps {
   products: Product[];
@@ -27,7 +27,7 @@ const ProductsGrid: FC<ProductsGridProps> = ({ products }) => {
             <div className="flex items-center space-x-4">
               <h2 className="text-3xl font-light">Productos</h2>
               <span className="text-muted-foreground">
-                ({products.length} productos)
+                ({products?.length} productos)
               </span>
             </div>
 
@@ -99,10 +99,11 @@ const ProductsGrid: FC<ProductsGridProps> = ({ products }) => {
                   <ProductCard
                     key={product.id}
                     id={product.id}
-                    name={product.name}
+                    name={product.title}
                     price={product.price}
-                    image={product.image}
-                    category={product.category}
+                    image={product.images[0]}
+                    category={product.gender}
+                    sizes={product.sizes}
                   />
                 ))}
               </div>
