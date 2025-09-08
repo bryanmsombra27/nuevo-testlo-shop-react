@@ -1,8 +1,32 @@
 import { tesloApi } from "@/api/teslo_api";
 import type { ProductResponse } from "@/interfaces/products.response";
 
-export const getProductsAction = async (): Promise<ProductResponse> => {
-  const { data } = await tesloApi.get<ProductResponse>("/products");
+interface Options {
+  limit?: number | string;
+  offset?: number | string;
+  gender?: string;
+  sizes?: string | never[];
+  minPrice?: number | undefined;
+  maxPrice?: number | undefined;
+  query?: string;
+}
+
+export const getProductsAction = async (
+  options: Options
+): Promise<ProductResponse> => {
+  const { limit, offset, gender, sizes, maxPrice, minPrice, query } = options;
+
+  const { data } = await tesloApi.get<ProductResponse>("/products", {
+    params: {
+      limit,
+      offset,
+      gender,
+      sizes,
+      minPrice,
+      maxPrice,
+      q: query,
+    },
+  });
 
   const productsWithImagesUrl = data?.products?.map((product) => {
     product.images = product.images.map(
