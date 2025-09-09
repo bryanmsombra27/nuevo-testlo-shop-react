@@ -9,6 +9,10 @@ import Dashboard from "./admin/pages/dashboard/Dashboard";
 import AdminProducts from "./admin/pages/products/AdminProducts";
 import AdminProduct from "./admin/pages/product/AdminProduct";
 import { lazy } from "react";
+import {
+  AdminRoute,
+  NotAutenthicatedRoutes,
+} from "./components/routes/ProtectedRoutes";
 
 const AuthLayout = lazy(() => import("./auth/layouts/AuthLayout"));
 const AdminLayout = lazy(() => import("./admin/layouts/AdminLayout"));
@@ -34,7 +38,11 @@ export const appRouter = createBrowserRouter([
   },
   {
     path: "/auth",
-    element: <AuthLayout />,
+    element: (
+      <NotAutenthicatedRoutes>
+        <AuthLayout />
+      </NotAutenthicatedRoutes>
+    ),
     children: [
       {
         index: true,
@@ -52,7 +60,11 @@ export const appRouter = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <AdminRoute>
+        <AdminLayout />
+      </AdminRoute>
+    ),
     children: [
       {
         index: true,
