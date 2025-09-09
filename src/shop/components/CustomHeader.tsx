@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/auth/store/auth.store";
 import CustomLogo from "@/components/custom/CustomLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ const CustomHeader: FC<CustomHeaderProps> = ({}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);
   const searchQuery = searchParams.get("query") || "";
+  const { logout } = useAuthStore();
 
   const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key != "Enter") return;

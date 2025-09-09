@@ -1,19 +1,47 @@
-import type { FC } from "react";
+import { toast } from "sonner";
+import { useState, type FC, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import CustomLogo from "@/components/custom/CustomLogo";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAuthStore } from "@/auth/store/auth.store";
 
 interface LoginProps {}
 
 const Login: FC<LoginProps> = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
+  const { login } = useAuthStore();
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    setLoading(true);
+
+    e.preventDefault();
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    const isValid = await login(email, password);
+
+    if (isValid) {
+      toast.success("Login exitoso!");
+      navigate("/");
+      return;
+    }
+    toast.error("Correo o contraseña no validos");
+    setLoading(false);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <form
+            className="p-6 md:p-8"
+            onSubmit={handleSubmit}
+          >
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <CustomLogo />
@@ -28,6 +56,7 @@ const Login: FC<LoginProps> = () => {
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  name="email"
                   required
                 />
               </div>
@@ -43,13 +72,15 @@ const Login: FC<LoginProps> = () => {
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   required
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full"
+                className={`w-full  ${loading && "pointer-events-none"}`}
+                disabled={loading}
               >
                 Ingresar
               </Button>
