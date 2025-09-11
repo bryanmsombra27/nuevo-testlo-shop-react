@@ -20,7 +20,7 @@ interface CheckAuthProviderProps {
 const CheckAuthProvider: FC<CheckAuthProviderProps> = ({ children }) => {
   const { checkAuthStatus } = useAuthStore();
 
-  const { data, isLoading } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ["auth"],
     queryFn: checkAuthStatus,
     retry: false,

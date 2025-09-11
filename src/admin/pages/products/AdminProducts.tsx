@@ -11,65 +11,96 @@ import {
 import { Link } from "react-router";
 import { CustomPagination } from "@/components/custom/CustomPagination";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { PencilIcon, PlusIcon } from "lucide-react";
+import useProducts from "@/shop/hooks/useProducts";
+import CustomFullScreenLoader from "@/components/custom/CustomFullScreenLoader";
+import { currencyFormater } from "@/helpers/currency-formatter";
 
 interface AdminProductsProps {}
 const AdminProducts: FC<AdminProductsProps> = ({}) => {
-  return (
-    <>
-      <div className="flex justify-between  items-center">
-        <AdminTitle
-          title="Productos"
-          subtitle="Aqui puedes ver y administrar todos tus productos"
-        />
-        <div className="flex justify-end mb-10 gap-4">
-          <Link to="/admin/products/new">
-            <Button>
-              <PlusIcon />
-              Nuevo Producto
-            </Button>
-          </Link>
+  const { data, error, isLoading } = useProducts();
+
+  if (isLoading)
+    return (
+      <>
+        <CustomFullScreenLoader />
+      </>
+    );
+
+  if (error) return <h1>Error al obtener los productos</h1>;
+
+  if (data)
+    return (
+      <>
+        <div className="flex justify-between  items-center">
+          <AdminTitle
+            title="Productos"
+            subtitle="Aqui puedes ver y administrar todos tus productos"
+          />
+          <div className="flex justify-end mb-10 gap-4">
+            <Link to="/admin/products/new">
+              <Button>
+                <PlusIcon />
+                Nuevo Producto
+              </Button>
+            </Link>
+          </div>
         </div>
-      </div>
 
-      <Table className="bg-white p-10 shadow-xs border border-gray-200 mb-10">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">ID</TableHead>
-            <TableHead>Imagen</TableHead>
-            <TableHead>Nombre</TableHead>
-            <TableHead className="text-right">Precio</TableHead>
-            <TableHead>Categoria</TableHead>
-            <TableHead>Inventario</TableHead>
-            <TableHead>Tallas</TableHead>
-            <TableHead>Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">INV001</TableCell>
-            <TableCell>
-              <img
-                src="https://placehold.co/250*250"
-                alt="koso"
-                className="w-20 h-20 object-cover roounded-md"
-              />
-            </TableCell>
-            <TableCell>Producto 1</TableCell>
-            <TableCell className="text-right">$250.00</TableCell>
-            <TableCell className="text-right">Categoria 1</TableCell>
-            <TableCell className="text-right">30</TableCell>
-            <TableCell className="text-right">XS,S,L</TableCell>
-            <TableCell className="text-right">
-              <Link to={`/admin/products/1`}>Editar</Link>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+        <Table className="bg-white p-10 shadow-xs border border-gray-200 mb-10">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px]">ID</TableHead>
+              <TableHead>Imagen</TableHead>
+              <TableHead>Nombre</TableHead>
+              <TableHead className="text-right">Precio</TableHead>
+              <TableHead>Categoria</TableHead>
+              <TableHead>Inventario</TableHead>
+              <TableHead>Tallas</TableHead>
+              <TableHead>Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.products &&
+              data.products.map((product) => (
+                <TableRow>
+                  <TableCell className="font-medium">{product.id}</TableCell>
+                  <TableCell>
+                    <img
+                      src={product.images[0]}
+                      alt={product.title}
+                      className="w-20 h-20 object-cover roounded-md"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Link
+                      to={`admin/product/${product.id}`}
+                      className="hover:text-blue-500 hover:underline transition-all duration-300"
+                    >
+                      {product.title}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {currencyFormater(product.price)}
+                  </TableCell>
+                  <TableCell className="text-right">{product.gender}</TableCell>
+                  <TableCell className="text-right">{product.stock}</TableCell>
+                  <TableCell className="text-right">
+                    {product.sizes.join(", ")}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Link to={`/admin/products/${product.id}`}>
+                      <PencilIcon className="w-4 h-4 text-blue-500" />
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
 
-      <CustomPagination totalPages={5} />
-    </>
-  );
+        <CustomPagination totalPages={data?.pages} />
+      </>
+    );
 };
 
 export default AdminProducts;
