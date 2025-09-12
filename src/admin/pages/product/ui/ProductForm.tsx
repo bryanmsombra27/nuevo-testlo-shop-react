@@ -9,11 +9,17 @@ import { cn } from "@/lib/utils";
 
 const availableSizes: Size[] = ["XS", "S", "M", "L", "XL", "XXL"];
 
+interface FormInputs extends Product {
+  files?: File[];
+}
+
 interface ProductFormProps {
   title: string;
   subtitle: string;
   product: Product;
-  handleSubmitForm: (productLike: Partial<Product>) => Promise<void>;
+  handleSubmitForm: (
+    productLike: Partial<Product & { files?: File[] }>
+  ) => Promise<void>;
   isPending: boolean;
 }
 const ProductForm: FC<ProductFormProps> = ({
@@ -32,17 +38,19 @@ const ProductForm: FC<ProductFormProps> = ({
     watch,
     setValue,
     formState: { errors },
-  } = useForm({
+  } = useForm<FormInputs>({
     defaultValues: product,
   });
 
   const submit = async (product: Product) => {
+    console.log(product, "PRODUCTO");
     await handleSubmitForm(product);
   };
 
   const selectedSizes = watch("sizes");
   const selectedTags = watch("tags");
   const stock = watch("stock");
+  const files = watch("files") || [];
 
   const addTag = () => {
     const sizeSet = new Set(getValues("tags"));
@@ -98,11 +106,24 @@ const ProductForm: FC<ProductFormProps> = ({
     setDragActive(false);
     const files = e.dataTransfer.files;
     console.log(files);
+
+    if (!files) return;
+
+    // setFiles((state) => [...state, ...Array.from(files)]);
+    const currentFiles = getValues("files") || [];
+
+    setValue("files", [...currentFiles, ...Array.from(files)]);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     console.log(files);
+
+    if (!files) return;
+
+    const currentFiles = getValues("files") || [];
+
+    setValue("files", [...currentFiles, ...Array.from(files)]);
   };
 
   return (
@@ -432,7 +453,7 @@ const ProductForm: FC<ProductFormProps> = ({
                     multiple
                     accept="image/*"
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    //   onChange={handleFileChange}
+                    onChange={handleFileChange}
                   />
                   <div className="space-y-4">
                     <Upload className="mx-auto h-12 w-12 text-slate-400" />
@@ -475,6 +496,27 @@ const ProductForm: FC<ProductFormProps> = ({
                           {image}
                         </p>
                       </div>
+                    ))}
+                  </div>
+                </div>
+                <div
+                  className={cn("mt-6 space-y-3", {
+                    hidden: files.length == 0,
+                  })}
+                >
+                  <h3 className="text-sm font-medium text-slate-700">
+                    Imágenes por cargar
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {files.map((file, index) => (
+                      <>
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt="Product"
+                          key={index}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      </>
                     ))}
                   </div>
                 </div>

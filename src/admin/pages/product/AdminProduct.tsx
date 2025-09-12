@@ -22,7 +22,9 @@ const AdminProduct: FC<AdminProductProps> = ({}) => {
 
   const navigate = useNavigate();
 
-  const handleSubmitForm = async (productLike: Partial<Product>) => {
+  const handleSubmitForm = async (
+    productLike: Partial<Product & { files?: File[] }>
+  ) => {
     const product = await mutateAsync(productLike);
 
     if (product) {
