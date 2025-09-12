@@ -63,7 +63,7 @@ const AdminProducts: FC<AdminProductsProps> = ({}) => {
           <TableBody>
             {data.products &&
               data.products.map((product) => (
-                <TableRow>
+                <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.id}</TableCell>
                   <TableCell>
                     <img

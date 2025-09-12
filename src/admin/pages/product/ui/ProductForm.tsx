@@ -13,9 +13,16 @@ interface ProductFormProps {
   title: string;
   subtitle: string;
   product: Product;
+  handleSubmitForm: (productLike: Partial<Product>) => Promise<void>;
+  isPending: boolean;
 }
-const ProductForm: FC<ProductFormProps> = ({ product, subtitle, title }) => {
-  const [newTag, setNewTag] = useState("");
+const ProductForm: FC<ProductFormProps> = ({
+  product,
+  subtitle,
+  title,
+  handleSubmitForm,
+  isPending,
+}) => {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const {
@@ -29,7 +36,9 @@ const ProductForm: FC<ProductFormProps> = ({ product, subtitle, title }) => {
     defaultValues: product,
   });
 
-  const submit = (product: Product) => {};
+  const submit = async (product: Product) => {
+    await handleSubmitForm(product);
+  };
 
   const selectedSizes = watch("sizes");
   const selectedTags = watch("tags");
@@ -41,24 +50,12 @@ const ProductForm: FC<ProductFormProps> = ({ product, subtitle, title }) => {
     sizeSet.add(inputValue);
     setValue("tags", Array.from(sizeSet));
     inputRef!.current!.value = "";
-    // if (newTag.trim() && !product.tags.includes(newTag.trim())) {
-    //   //   setProduct((prev) => ({
-    //   //     ...prev,
-    //   //     tags: [...prev.tags, newTag.trim()],
-    //   //   }));
-    //   setNewTag("");
-    // }
   };
 
   const removeTag = (tagToRemove: string) => {
     const sizeSet = new Set(getValues("tags"));
     sizeSet.delete(tagToRemove);
     setValue("tags", Array.from(sizeSet));
-
-    // setProduct((prev) => ({
-    //   ...prev,
-    //   tags: prev.tags.filter((tag) => tag !== tagToRemove),
-    // }));
   };
 
   const addSize = (size: Size) => {
@@ -127,7 +124,11 @@ const ProductForm: FC<ProductFormProps> = ({ product, subtitle, title }) => {
               </Link>
             </Button>
 
-            <Button>
+            <Button
+              disabled={isPending}
+              type="submit"
+              className={`${isPending && "pointer-events-none"}`}
+            >
               <SaveAll className="w-4 h-4" />
               Guardar cambios
             </Button>
@@ -154,7 +155,7 @@ const ProductForm: FC<ProductFormProps> = ({ product, subtitle, title }) => {
                       {...register("title", {
                         required: true,
                       })}
-                      value={product.title}
+                      defaultValue={product.title}
                       className={cn(
                         "w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200",
                         {
@@ -230,7 +231,7 @@ const ProductForm: FC<ProductFormProps> = ({ product, subtitle, title }) => {
                     </label>
                     <input
                       type="text"
-                      value={product.slug}
+                      defaultValue={product.slug}
                       {...register("slug", {
                         required: true,
                         validate: (value) => {
@@ -260,7 +261,7 @@ const ProductForm: FC<ProductFormProps> = ({ product, subtitle, title }) => {
                       Género del producto
                     </label>
                     <select
-                      value={product.gender}
+                      defaultValue={product.gender}
                       {...register("gender")}
                       // onChange={(e) =>
                       // //   handleInputChange("gender", e.target.value)
@@ -279,7 +280,7 @@ const ProductForm: FC<ProductFormProps> = ({ product, subtitle, title }) => {
                       Descripción del producto
                     </label>
                     <textarea
-                      value={product.description}
+                      defaultValue={product.description}
                       {...register("description", {
                         required: true,
                       })}
